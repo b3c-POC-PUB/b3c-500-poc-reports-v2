@@ -1,0 +1,57 @@
+name: Initialize B3C PoC reports v2
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/initialize-v2.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy existing public repository contents without secrets or Git history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/b3c-POC-PUB/b3c-500-poc-reports.git /tmp/b3c-source
+          cp -a /tmp/b3c-source/dashboard-app ./dashboard-app
+          cp -a /tmp/b3c-source/docs ./docs
+          cp -a /tmp/b3c-source/.gitignore ./.gitignore
+          cp -a /tmp/b3c-source/README.md ./README.md
+          python3 - <<'PY'
+          from pathlib import Path
+          old='/b3c-500-poc-reports/'
+          new='/b3c-500-poc-reports-v2/'
+          for path in [Path('dashboard-app/vite.config.ts'), Path('dashboard-app/src/AWSVPN.tsx'), Path('docs/404.html')]:
+              txt=path.read_text(encoding='utf-8')
+              txt=txt.replace(old,new)
+              path.write_text(txt,encoding='utf-8')
+          for path in [Path('dashboard-app/src/AWSVPN.tsx'), Path('docs/404.html')]:
+              txt=path.read_text(encoding='utf-8')
+              txt=txt.replace('b3c-poc-pub.github.io/b3c-500-poc-reports/', 'b3c-poc-pub.github.io/b3c-500-poc-reports-v2/')
+              path.write_text(txt,encoding='utf-8')
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build dashboard with v2 base path
+        working-directory: dashboard-app
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Verify required files
+        run: |
+          test -s docs/index.html
+          test -s docs/assets/logo/b3c_logo_transparent_black.png
+          test -s docs/reports/500-001-aws-s2s-vpn/index.html
+          test -s docs/reports/500-001-aws-s2s-vpn/evidence/T03_ping_A_to_B.txt
+          test -s docs/404.html
+          grep -q '/b3c-500-poc-reports-v2/' docs/index.html
+      - name: Commit migrated content
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "Import verified PoC dashboard, reports, evidence and rebuilt v2 assets" && git push)
