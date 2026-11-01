@@ -1,2 +1,18 @@
 @import 'tailwindcss';
 html,body,#root{margin:0;min-height:100%;width:100%;font-family:'Segoe UI','Meiryo',system-ui,sans-serif}*{box-sizing:border-box}
+
+/* B3C report typography: deliberate PC-first editorial reading scale. */
+.b3c-report{font-size:16px;line-height:1.75}
+.b3c-report .text-xs{font-size:14px;line-height:1.65}
+.b3c-report .text-sm{font-size:16px;line-height:1.75}
+.b3c-report .text-\[10px\]{font-size:12px;line-height:1.5}
+.b3c-report h1{line-height:1.35}
+.b3c-report h2{font-size:25px;line-height:1.4}
+.b3c-report h3{font-size:21px;line-height:1.45}
+.b3c-report .grid .text-2xl{font-size:30px;line-height:1.35}
+.b3c-report button,.b3c-report select{font-size:15px}
+.b3c-report p{max-width:85ch}
+.b3c-report main>div{min-width:0}
+.b3c-report section{width:100%}
+.b3c-report svg{display:block;max-width:100%;height:auto}
+@media(max-width:640px){.b3c-report{font-size:15px}.b3c-report .text-xs{font-size:13px}.b3c-report .text-sm{font-size:15px}.b3c-report h2{font-size:22px}.b3c-report h3{font-size:19px}}
