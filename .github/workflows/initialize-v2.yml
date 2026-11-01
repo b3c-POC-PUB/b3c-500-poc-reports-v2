@@ -1,4 +1,5 @@
 name: Initialize B3C PoC reports v2
+# Import from the existing public report repository; original remains untouched.
 on:
   push:
     branches: [main]
