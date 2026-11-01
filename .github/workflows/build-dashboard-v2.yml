@@ -1,0 +1,40 @@
+name: Build and publish B3C v2 dashboard
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard-app/**'
+      - '.github/workflows/build-dashboard-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build dashboard
+        working-directory: dashboard-app
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Validate output
+        run: |
+          test -s docs/index.html
+          test -s docs/reports/500-001-aws-s2s-vpn/index.html
+          test -s docs/assets/logo/b3c_logo_transparent_black.png
+          grep -q '/b3c-500-poc-reports-v2/' docs/index.html
+      - name: Commit generated assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html docs/dashboard-assets
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish B3C v2 HERO dashboard"
+            git push
+          fi
