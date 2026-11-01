@@ -1,0 +1,52 @@
+試験: T05・T06 IKE SA・IPsec SA（仕様は Cisco、実機は Yamaha vRX）
+取得日時: 2026-11-01 02:14:40 JST
+どこで: vRX（Yamaha vRX Rev.20.00.03、10.10.1.5）。作業 PC から EICE の open-tunnel と ssh で入って実行
+コマンド: （vRX に SSH）administrator / console lines infinity / show ipsec sa / show status tunnel 1 / show ip route
+伏せ字: PSK・管理者 IP・口座番号の値だけを置換（<PSK>・<ADMIN_IP>・<ACCOUNT_ID>）。ほかの IP は実値。ほかは未加工。
+----------------------------------------------------------------------
+=== administrator
+administrator  
+# 
+=== console lines infinity
+console lines infinity
+# 
+=== show ipsec sa
+show ipsec sa  
+Total: isakmp:1 send:1 recv:1
+
+sa    sgw isakmp connection    dir  life[s] remote-id
+----------------------------------------------------------------------------
+1     1    -     ike           -    28451   13.196.38.153
+2     1    1     tun[0001]esp  send 3251    13.196.38.153
+3     1    1     tun[0001]esp  recv 3251    13.196.38.153
+
+# 
+=== show status tunnel 1
+show status tunnel 1
+TUNNEL[1]: 
+説明: 
+  インタフェースの種類: IPsec
+  トンネルインタフェースは接続されています
+  開始: 2026/11/01 02:08:58
+  通信時間: 5分50秒
+  最大パケット長(MTU):
+         IPv4: 1280 オクテット
+         IPv6: 1280 オクテット
+  受信: (IPv4) 37 パケット [2820 オクテット]
+        (IPv6) 0 パケット [0 オクテット]
+  送信: (IPv4) 37 パケット [2820 オクテット]
+        (IPv6) 0 パケット [0 オクテット]
+  IKEキープアライブ:
+           [タイプ]: rfc4306
+             [状態]: OK
+         [次の送信]: 5 秒後
+# 
+=== show ip route
+show ip route  
+宛先ネットワーク    ゲートウェイ     インタフェース  種別  付加情報
+default             10.10.0.1        LAN1(DHCP)    static  
+10.10.0.0/24        10.10.0.10             LAN1  implicit  
+10.10.1.0/24        10.10.1.5              LAN2  implicit  
+10.20.0.0/16        -                 TUNNEL[1]    static  
+169.254.236.124/30  -                 TUNNEL[1]  implicit  
+# 

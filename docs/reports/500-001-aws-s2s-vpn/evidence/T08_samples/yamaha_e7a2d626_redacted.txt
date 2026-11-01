@@ -1,0 +1,233 @@
+# Amazon Web Services
+# Virtual Private Cloud
+
+# AWS utilizes unique identifiers to manage the configuration of
+# a VPN Connection. Each VPN Connection is assigned an identifier and is
+# associated with two other identifiers, namely the
+# Customer Gateway Identifier and Virtual Private Gateway Identifier.
+#
+# Your VPN Connection ID  		    : <VPN_ID>
+# Your Virtual Private Gateway ID           : <VGW_ID>
+# Your Customer Gateway ID 		    : <CGW_ID>
+#
+#
+# This configuration consists of two tunnels. Both tunnels must be
+# configured on your Customer Gateway.
+#
+
+# Before configuring the tunnels run the following command to enable the IPSec feature:
+  ipsec use on
+
+# --------------------------------------------------------------------------------
+# IPSec Tunnel #1
+# --------------------------------------------------------------------------------
+
+
+# #1: Internet Key Exchange (IKE) Configuration
+#
+# A policy is established for the supported ISAKMP encryption,
+# authentication, Diffie-Hellman, lifetime, and key parameters.
+#
+# Please note, these sample configurations are for the minimum requirement of AES128, SHA1, and DH Group 2.
+# Category "VPN" connections in the GovCloud region have a minimum requirement of AES128, SHA2, and DH Group 14.
+# You will need to modify these sample configuration files to take advantage of AES256, SHA256, or other DH groups like 2, 14-18, 22, 23, and 24.
+# NOTE: If you customized tunnel options when creating or modifying your VPN connection, you may need to modify these sample configurations to match the custom settings for your tunnels.
+#
+# Higher parameters are only available for VPNs of category "VPN," and not for "VPN-Classic".
+# The address of the external interface for your customer gateway must be a static address.
+# Your customer gateway may reside behind a device performing network address translation (NAT).
+# To ensure that NAT traversal (NAT-T) can function, you must adjust your firewall !rules to unblock UDP port 4500.
+# If not behind NAT, and you are not using an Accelerated VPN, we recommend disabling NAT-T. If you are using an Accelerated VPN, make sure that NAT-T is enabled.
+
+tunnel select 1
+
+# Note that there are a global list of IPSec policies, each identified by
+# sequence number. This policy is defined as #201, which may conflict with
+# an existing policy using the same number. If so, we recommend changing
+# the sequence number to avoid conflicts.
+
+ ipsec tunnel 201
+  ipsec ike version 1 2
+  ipsec ike duration isakmp-sa 1 28800
+  ipsec ike encryption 1 aes-cbc
+  ipsec ike group 1 modp1024
+  ipsec ike hash 1 sha
+  ipsec ike pre-shared-key 1 text <PSK>
+
+# #2: IPSec Configuration
+
+# The IPSec policy defines the encryption, authentication, and IPSec
+# mode parameters.
+# Category "VPN" connections in the GovCloud region have a minimum requirement of AES128, SHA2, and DH Group 14.
+# Please note, you may use these additionally supported IPSec parameters for encryption like AES256 and other DH groups like 2, 5, 14-18, 22, 23, and 24.
+# NOTE: If you customized tunnel options when creating or modifying your VPN connection, you may need to modify these sample configurations to match the custom settings for your tunnels.
+#
+# Higher parameters are only available for VPNs of category "VPN," and not for "VPN-Classic".
+#
+
+  ipsec sa policy 201 1 esp aes-cbc sha-hmac
+  ipsec ike duration ipsec-sa 1 3600
+  ipsec ike pfs 1 on
+  ipsec ike message-id-control 1 on
+  ipsec ike child-exchange type 1 2
+  ipsec ike keepalive use 1 on rfc4306 10 3
+
+# --------------------------------------------------------------------------------
+# #3: Tunnel Interface Configuration
+#
+# A tunnel interface is configured to be the logical interface associated
+# with the tunnel. All traffic routed to the tunnel interface will be
+# encrypted and transmitted to the VPC. Similarly, traffic from the VPC
+# will be logically received on this interface.
+#
+# The address of the interface is configured with the setup for your
+# Customer Gateway.  If the address changes, the Customer Gateway and VPN
+# Connection must be recreated with Amazon VPC.
+#
+  ipsec ike local address 1 <IP>
+  ipsec ike local name 1 <IP> ipv4-addr
+  ipsec ike remote address 1 <IP>
+  ipsec ike remote name 1 <IP> ipv4-addr
+  ipsec ike negotiation receive 1 off
+ ipsec tunnel outer df-bit clear
+	ip tunnel address 169.254.236.126/255.255.255.252
+	ip tunnel remote address 169.254.236.125
+ ip tunnel tcp mss limit auto
+ tunnel enable 1
+tunnel select none
+ipsec auto refresh on
+
+# --------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# #4 Static Route Configuration
+#
+# Your Customer Gateway needs to set a static route for the prefix
+# corresponding to your VPC to send traffic over the tunnel interface.
+# An example for a VPC with the prefix 10.0.0.0/16, where tunnel 1 is the
+# preferred tunnel, is provided below:
+# ip route 10.0.0.0/16 gateway tunnel 1 keepalive 1 gateway tunnel 2 weight 0
+#
+# Keepalive is used to provide a failover between the two tunnels.
+# If the primary tunnel fails, the redundant tunnel will automatically be used.
+# This keepalive is defined as keepalive 1, which may conflict with an existing
+# keepalive using same number. If so, we recommend changing the keepalive
+#  number to avoid conflicts.
+#
+# ip keepalive 1 icmp-echo 1 5 169.254.236.125
+# exit
+
+
+# --------------------------------------------------------------------------------
+# IPSec Tunnel #2
+# --------------------------------------------------------------------------------
+
+
+# #1: Internet Key Exchange (IKE) Configuration
+#
+# A policy is established for the supported ISAKMP encryption,
+# authentication, Diffie-Hellman, lifetime, and key parameters.
+#
+# Please note, these sample configurations are for the minimum requirement of AES128, SHA1, and DH Group 2.
+# Category "VPN" connections in the GovCloud region have a minimum requirement of AES128, SHA2, and DH Group 14.
+# You will need to modify these sample configuration files to take advantage of AES256, SHA256, or other DH groups like 2, 14-18, 22, 23, and 24.
+# NOTE: If you customized tunnel options when creating or modifying your VPN connection, you may need to modify these sample configurations to match the custom settings for your tunnels.
+#
+# Higher parameters are only available for VPNs of category "VPN," and not for "VPN-Classic".
+# The address of the external interface for your customer gateway must be a static address.
+# Your customer gateway may reside behind a device performing network address translation (NAT).
+# To ensure that NAT traversal (NAT-T) can function, you must adjust your firewall !rules to unblock UDP port 4500.
+# If not behind NAT, and you are not using an Accelerated VPN, we recommend disabling NAT-T. If you are using an Accelerated VPN, make sure that NAT-T is enabled.
+
+tunnel select 2
+
+# Note that there are a global list of IPSec policies, each identified by
+# sequence number. This policy is defined as #202, which may conflict with
+# an existing policy using the same number. If so, we recommend changing
+# the sequence number to avoid conflicts.
+
+ ipsec tunnel 202
+  ipsec ike version 2 2
+  ipsec ike duration isakmp-sa 2 28800
+  ipsec ike encryption 2 aes-cbc
+  ipsec ike group 2 modp1024
+  ipsec ike hash 2 sha
+  ipsec ike pre-shared-key 2 text <PSK>
+
+# #2: IPSec Configuration
+
+# The IPSec policy defines the encryption, authentication, and IPSec
+# mode parameters.
+# Category "VPN" connections in the GovCloud region have a minimum requirement of AES128, SHA2, and DH Group 14.
+# Please note, you may use these additionally supported IPSec parameters for encryption like AES256 and other DH groups like 2, 5, 14-18, 22, 23, and 24.
+# NOTE: If you customized tunnel options when creating or modifying your VPN connection, you may need to modify these sample configurations to match the custom settings for your tunnels.
+#
+# Higher parameters are only available for VPNs of category "VPN," and not for "VPN-Classic".
+#
+
+  ipsec sa policy 202 2 esp aes-cbc sha-hmac
+  ipsec ike duration ipsec-sa 2 3600
+  ipsec ike pfs 2 on
+  ipsec ike message-id-control 2 on
+  ipsec ike child-exchange type 2 2
+  ipsec ike keepalive use 2 on rfc4306 10 3
+
+# --------------------------------------------------------------------------------
+# #3: Tunnel Interface Configuration
+#
+# A tunnel interface is configured to be the logical interface associated
+# with the tunnel. All traffic routed to the tunnel interface will be
+# encrypted and transmitted to the VPC. Similarly, traffic from the VPC
+# will be logically received on this interface.
+#
+# The address of the interface is configured with the setup for your
+# Customer Gateway.  If the address changes, the Customer Gateway and VPN
+# Connection must be recreated with Amazon VPC.
+#
+  ipsec ike local address 2 <IP>
+  ipsec ike local name 2 <IP> ipv4-addr
+  ipsec ike remote address 2 <IP>
+  ipsec ike remote name 2 <IP> ipv4-addr
+  ipsec ike negotiation receive 2 off
+ ipsec tunnel outer df-bit clear
+	ip tunnel address 169.254.231.250/255.255.255.252
+	ip tunnel remote address 169.254.231.249
+ ip tunnel tcp mss limit auto
+ tunnel enable 2
+tunnel select none
+ipsec auto refresh on
+
+# --------------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# #4 Static Route Configuration
+#
+# Your Customer Gateway needs to set a static route for the prefix
+# corresponding to your VPC to send traffic over the tunnel interface.
+# An example for a VPC with the prefix 10.0.0.0/16, where tunnel 1 is the
+# preferred tunnel, is provided below:
+# ip route 10.0.0.0/16 gateway tunnel 1 keepalive 1 gateway tunnel 2 weight 0
+#
+# Keepalive is used to provide a failover between the two tunnels.
+# If the primary tunnel fails, the redundant tunnel will automatically be used.
+# This keepalive is defined as keepalive 1, which may conflict with an existing
+# keepalive using same number. If so, we recommend changing the keepalive
+#  number to avoid conflicts.
+#
+# ip keepalive 1 icmp-echo 1 5 169.254.236.125
+# exit
+
+
+
+
+# Additional Notes and Questions
+
+#  - Amazon Virtual Private Cloud Getting Started Guide:
+#       http://docs.amazonwebservices.com/AmazonVPC/latest/GettingStartedGuide
+#  - Amazon Virtual Private Cloud Network Administrator Guide:
+#       http://docs.amazonwebservices.com/AmazonVPC/latest/NetworkAdminGuide
+#  - Yamaha router's manual:
+#	 http://www.rtpro.yamaha.co.jp/RT/docs/amazon-vpc/index.html
+#  - Yamaha router's NAT settings in IPsec:
+#        http://www.rtpro.yamaha.co.jp/RT/docs/ipsec/nat.html
+

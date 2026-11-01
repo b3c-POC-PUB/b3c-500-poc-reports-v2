@@ -1,0 +1,16 @@
+試験: T04 EC2-B -> EC2-A ping
+取得日時: 2026-11-01 02:14:33 JST
+どこで: EC2-B（10.20.1.10）。作業 PC から EC2 Instance Connect Endpoint の open-tunnel と ssh で入って実行
+コマンド: ping -c 5 10.10.1.10
+伏せ字: PSK・管理者 IP・口座番号の値だけを置換（<PSK>・<ADMIN_IP>・<ACCOUNT_ID>）。ほかの IP は実値。ほかは未加工。
+----------------------------------------------------------------------
+PING 10.10.1.10 (10.10.1.10) 56(84) bytes of data.
+64 bytes from 10.10.1.10: icmp_seq=1 ttl=126 time=3.89 ms
+64 bytes from 10.10.1.10: icmp_seq=2 ttl=126 time=3.99 ms
+64 bytes from 10.10.1.10: icmp_seq=3 ttl=126 time=4.02 ms
+64 bytes from 10.10.1.10: icmp_seq=4 ttl=126 time=3.64 ms
+64 bytes from 10.10.1.10: icmp_seq=5 ttl=126 time=3.87 ms
+
+--- 10.10.1.10 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 4005ms
+rtt min/avg/max/mdev = 3.637/3.881/4.016/0.134 ms

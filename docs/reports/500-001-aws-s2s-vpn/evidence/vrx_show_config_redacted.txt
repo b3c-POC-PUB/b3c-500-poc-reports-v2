@@ -1,0 +1,46 @@
+show config  
+# vRX Rev.20.00.03 (Tue Jul  7 18:00:09 2026) ** Compact Mode **
+# MAC Address : 06:ff:dc:f6:f6:89, 06:ff:e7:1c:e6:25
+# Memory 3855Mbytes, 4LAN
+# Reporting Date: Nov 1 05:09:37 2026
+administrator password *
+login user ec2-user *
+user attribute ec2-user administrator=2
+console lines infinity
+ip route default gateway dhcp lan1
+ip route 10.20.0.0/16 gateway tunnel 1
+ip lan1 address dhcp
+ip lan2 address dhcp
+tunnel select 1
+ ipsec tunnel 201
+  ipsec sa policy 201 1 esp aes256-cbc sha256-hmac
+  ipsec ike version 1 2
+  ipsec ike duration ipsec-sa 1 3600
+  ipsec ike duration ike-sa 1 28800
+  ipsec ike encryption 1 aes256-cbc
+  ipsec ike group 1 modp2048
+  ipsec ike hash 1 sha256
+  ipsec ike keepalive use 1 on rfc4306 10 3
+  ipsec ike local address 1 10.10.0.10
+  ipsec ike local name 1 3.115.198.19 ipv4-addr
+  ipsec ike nat-traversal 1 on
+  ipsec ike pfs 1 on
+  ipsec ike proposal-limitation 1 on
+  ipsec ike message-id-control 1 on
+  ipsec ike child-exchange type 1 2
+  ipsec ike pre-shared-key 1 text <REDACTED>
+  ipsec ike remote address 1 13.196.38.153
+  ipsec ike remote name 1 13.196.38.153 ipv4-addr
+  ipsec ike negotiation receive 1 off
+ ipsec tunnel outer df-bit clear
+ ip tunnel address 169.254.236.126/30
+ ip tunnel remote address 169.254.236.125
+ ip tunnel tcp mss limit auto
+ tunnel enable 1
+ipsec use on
+ipsec auto refresh on
+telnetd service off
+dns server dhcp lan2
+sshd service on
+sshd host key generate *
+# 

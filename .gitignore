@@ -1,0 +1,122 @@
+# =====================================================
+# b3c-<project> .gitignore TEMPLATE
+# Standard exclusions for B3C project repositories
+# Copy to <new-repo>/.gitignore and customize as needed
+# =====================================================
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === Virtual Environments ===
+.venv/
+venv/
+env/
+ENV/
+
+# === Editor / IDE ===
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS ===
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+
+# === Logs - Git管理外、OneDriveで管理 ===
+*.log
+@logs/
+@logs/**
+
+# === Trial / Sandbox - Git管理対象外 ===
+@WORK/
+@WORK/**
+
+# === Old / Archive - Git管理対象外 ===
+@OLD/
+@OLD/**
+
+# === Input / Output data - データはGit外 ===
+input/
+input/**
+!input/.gitkeep
+output/
+output/**
+!output/.gitkeep
+
+# === Secrets - 絶対にコミットしない ===
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+secrets.json
+config.local.json
+*credentials*
+*token*
+*.secret
+local.settings.json
+
+# === Build / Deploy artifacts ===
+dist/
+build/
+*.zip
+deployed_zips/
+!claude_ai_upload_*.zip
+
+# === Azure Functions specific ===
+.python_packages/
+bin/
+obj/
+local.settings.json
+
+# === Coverage / Test outputs ===
+coverage/
+.coverage
+htmlcov/
+.tox/
+
+# === Node.js (if any tooling) ===
+node_modules/
+npm-debug.log*
+
+# === Temporary files ===
+*.tmp
+*.bak
+*.old
+*.orig
+
+# === OneDrive sync artifacts ===
+*の競合コピー*
+*conflict*
+
+# === Personal / Draft notes ===
+PERSONAL_*.md
+PRIVATE_*.md
+SCRATCH_*.md
+DRAFT_*.md
+WIP_*.md
+
+# === fix_*.py / patch_*.py - 試行錯誤ファイル ===
+# 本番階層には残さない（@WORK で試行→@OLDに退避）
+fix_*.py
+patch_*.py
+test_*_temp.py
+
+# === Specific to this project (customize per project) ===
+# 例：data/temp/ 等、案件固有の除外
+tmp/
